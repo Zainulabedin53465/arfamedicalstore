@@ -16,6 +16,8 @@
 // No strengths, dosages or medical claims are included on purpose.
 // ============================================================
 
+import { PRICES, STOCK, IMAGES } from './catalogData.js';
+
 export const CATEGORIES = [
   { id: 'fever',     label: 'Fever & Pain Relief',    blurb: 'Tablets, balms and sprays',               icon: 'pill' },
   { id: 'cold',      label: 'Cold, Cough & Flu',      blurb: 'Syrups, lozenges and inhalers',           icon: 'wind' },
@@ -33,13 +35,7 @@ export const CATEGORIES = [
 ];
 
 // ---------- EDIT THESE TWO LISTS ----------
-export const PRICES = {
-  // 'fp-01': 30,
-};
 
-export const STOCK = {
-  // 'fp-01': 'in_stock',
-};
 
 // ---------- Short descriptions by product form ----------
 const FORM_DESC = {
@@ -224,6 +220,7 @@ const RAW = [
 // Final product list: merges editable PRICES and STOCK.
 export const PRODUCTS = RAW.map((p) => ({
   ...p,
+  image: IMAGES[p.id] || p.image,
   price: PRICES[p.id] ?? null,           // null = "Price on request"
   availability: STOCK[p.id] || 'confirm', // confirm | in_stock | out_of_stock
 }));

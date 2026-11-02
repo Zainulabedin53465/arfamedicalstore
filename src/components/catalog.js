@@ -5,6 +5,7 @@ import { addItem, MAX_QTY } from '../utils/cartStore.js';
 import { formatINR } from '../utils/format.js';
 import { escapeHTML } from '../utils/sanitize.js';
 import { icon } from '../utils/icons.js';
+import { productArt } from '../utils/productArt.js';
 import { prefersReducedMotion } from '../utils/motion.js';
 
 gsap.registerPlugin(ScrollTrigger);
@@ -13,11 +14,18 @@ const catById = new Map(CATEGORIES.map((c) => [c.id, c]));
 let activeCat = 'all';
 let showToast = () => {};
 
+// Only https image URLs are accepted. Anything else falls back to the illustration.
+function isSafeImageURL(u) {
+  if (!u || typeof u !== 'string') return false;
+  try { return new URL(u).protocol === 'https:'; } catch { return false; }
+}
+
 function cardHTML(p) {
   const cat = catById.get(p.category);
-  const media = p.image
-    ? `<img src="${escapeHTML(p.image)}" alt="${escapeHTML(p.name)}" loading="lazy" decoding="async" width="400" height="300" />`
-    : `<div class="product-card__icon">${icon(cat?.icon || 'cross')}</div>`;
+  const art = `<div class="product-card__art">${productArt(p.form)}</div>`;
+  const media = isSafeImageURL(p.image)
+    ? `<img class="product-card__img" src="${escapeHTML(p.image)}" alt="${escapeHTML(p.name)}" loading="lazy" decoding="async" referrerpolicy="no-referrer" width="400" height="300" />${art}`
+    : art;
   return `
     <article class="product-card glass" data-id="${escapeHTML(p.id)}">
       <div class="product-card__media">
@@ -71,6 +79,11 @@ function setCategory(id) {
 }
 
 function bindEvents() {
+  // Broken or blocked external images fall back to the illustration
+  document.getElementById('product-grid')?.addEventListener('error', (e) => {
+    if (e.target.classList?.contains('product-card__img')) e.target.remove();
+  }, true);
+
   // Filter chips
   document.getElementById('filter-bar')?.addEventListener('click', (e) => {
     const chip = e.target.closest('.chip');
