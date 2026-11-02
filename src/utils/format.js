@@ -7,6 +7,7 @@ export function roundMoney(n) {
 
 // 1234.5 -> "₹1,234.50", 120 -> "₹120"
 export function formatINR(amount) {
+  if (amount === null || amount === undefined || amount === '') return 'Price on request';
   const value = roundMoney(amount);
   const hasPaise = Math.abs(value % 1) > 0;
   const text = new Intl.NumberFormat(CURRENCY.locale, {

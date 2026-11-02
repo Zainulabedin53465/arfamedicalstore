@@ -45,15 +45,16 @@ export function getState() {
       id,
       name: p.name,
       unit: p.unit || '',
-      price: p.price,
+      price: p.price ?? null,
       qty,
-      subtotal: roundMoney(p.price * qty),
+      subtotal: p.price == null ? null : roundMoney(p.price * qty),
       isSample: !!p.isSample,
     };
   });
-  const total = roundMoney(lines.reduce((sum, l) => sum + l.subtotal, 0));
+  const total = roundMoney(lines.reduce((sum, l) => sum + (l.subtotal ?? 0), 0));
   const count = lines.reduce((sum, l) => sum + l.qty, 0);
-  return { lines, total, count };
+  const unpriced = lines.filter((l) => l.price == null).length;
+  return { lines, total, count, unpriced };
 }
 
 export function subscribe(fn) {
